@@ -62,14 +62,14 @@ export default function Home() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
-      <div className="text-center mb-8">
+      {/* <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
           Discover the Bay Area
         </h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Explore local favorites and hidden gems recommended by people who know the area best.
         </p>
-      </div>
+      </div> */}
 
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
