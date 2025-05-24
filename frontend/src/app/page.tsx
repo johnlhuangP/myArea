@@ -2,44 +2,44 @@
 
 import { useState } from 'react';
 import { useLocations } from '@/hooks/useLocations';
-import { SimpleMap } from '@/components/map/SimpleMap';
+import { SimpleMapBox } from '@/components/map/SimpleMapBox';
 import { LocationList } from '@/components/locations/LocationList';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Location, LocationCategory } from '@/types';
-import { MapPin, List, Filter } from 'lucide-react';
+import { MapPin, List, Plus } from 'lucide-react';
+import '../styles/mapbox.css';
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
-  const { data: locationsData, isLoading, error } = useLocations('San Francisco', selectedCategory || undefined);
+  const { data: locationsData, isLoading, error, refetch } = useLocations('San Francisco');
 
   const locations = locationsData?.locations || [];
 
-  const categories = [
-    { value: '', label: 'All Categories' },
-    { value: LocationCategory.RESTAURANT, label: 'Restaurants' },
-    { value: LocationCategory.CAFE, label: 'Cafes' },
-    { value: LocationCategory.BAR, label: 'Bars' },
-    { value: LocationCategory.PARK, label: 'Parks' },
-    { value: LocationCategory.HIKE, label: 'Hikes' },
-    { value: LocationCategory.VIEWPOINT, label: 'Viewpoints' },
-    { value: LocationCategory.SHOPPING, label: 'Shopping' },
-    { value: LocationCategory.MUSEUM, label: 'Museums' },
-    { value: LocationCategory.ENTERTAINMENT, label: 'Entertainment' },
-    { value: LocationCategory.BEACH, label: 'Beaches' },
-  ];
+  const handleLocationAdded = (location: Location) => {
+    // Refresh the locations list
+    refetch();
+    // Select the newly added location
+    setSelectedLocation(location);
+  };
+
+  const handleAddLocation = (lat: number, lng: number) => {
+    // This would integrate with a location creation form
+    console.log('Add location at:', lat, lng);
+    // For now, we'll just log the coordinates
+    // In a real implementation, this would open a form or modal
+  };
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-64">
+        <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading Bay Area locations...</p>
+            <div className="w-full h-96 mapbox-loading rounded-lg border"></div>
+            <p className="text-gray-600 mt-4">Loading Bay Area locations...</p>
           </div>
         </div>
       </div>
@@ -71,52 +71,24 @@ export default function Home() {
         </p>
       </div> */}
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        {/* Category Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500" />
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Badge
-                key={category.value}
-                variant={selectedCategory === category.value ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => setSelectedCategory(category.value)}
-              >
-                {category.label}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* View Toggle */}
-        <div className="flex items-center gap-2 ml-auto">
-          <Button
-            variant={viewMode === 'map' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('map')}
-          >
-            <MapPin className="w-4 h-4 mr-1" />
-            Map
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            <List className="w-4 h-4 mr-1" />
-            List
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="mb-6">
-        <p className="text-sm text-gray-600">
-          Showing {locations.length} location{locations.length !== 1 ? 's' : ''} in the Bay Area
-          {selectedCategory && ` • ${categories.find(c => c.value === selectedCategory)?.label}`}
-        </p>
+      {/* View Toggle */}
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <Button
+          variant={viewMode === 'map' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setViewMode('map')}
+        >
+          <MapPin className="w-4 h-4 mr-1" />
+          Map View
+        </Button>
+        <Button
+          variant={viewMode === 'list' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setViewMode('list')}
+        >
+          <List className="w-4 h-4 mr-1" />
+          List View
+        </Button>
       </div>
 
       {/* Main Content */}
@@ -124,13 +96,14 @@ export default function Home() {
         {/* Map/List View */}
         <div className="lg:col-span-2">
           {viewMode === 'map' ? (
-            <SimpleMap
+            <SimpleMapBox
               locations={locations}
               onLocationClick={setSelectedLocation}
               selectedLocation={selectedLocation}
+              onAddLocation={handleAddLocation}
             />
           ) : (
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto border rounded-lg">
               <LocationList
                 locations={locations}
                 onLocationClick={setSelectedLocation}
@@ -201,11 +174,32 @@ export default function Home() {
               <CardContent className="p-6 text-center text-gray-500">
                 <MapPin className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>Select a location to see details</p>
+                <p className="text-xs mt-2">
+                  Click on any marker on the map or item in the list
+                </p>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
+
+      {/* Stats Footer */}
+      {/* <div className="mt-8 text-center">
+        <div className="inline-flex items-center gap-4 text-sm text-gray-600 bg-white rounded-lg px-6 py-3 shadow-sm border">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span>{locations.length} total locations</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span>Bay Area focused</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+            <span>Community curated</span>
+          </div>
+        </div>
+      </div>*/}
     </div>
   );
 }
