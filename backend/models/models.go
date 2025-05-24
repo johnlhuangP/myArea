@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // User represents a user in the system
@@ -30,7 +31,7 @@ type Location struct {
 	City        string    `json:"city" gorm:"not null"`
 	Rating      *int      `json:"rating" gorm:"check:rating >= 1 AND rating <= 5"`
 	PriceLevel  *int      `json:"price_level" gorm:"check:price_level >= 1 AND price_level <= 4"`
-	Tags        []string  `json:"tags" gorm:"type:text[]"`
+	Tags        pq.StringArray  `json:"tags" gorm:"type:text[]"`
 	ImageURL    *string   `json:"image_url"`
 	WebsiteURL  *string   `json:"website_url"`
 	CreatedAt   time.Time `json:"created_at"`

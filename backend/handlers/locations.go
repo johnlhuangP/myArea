@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // CreateLocationRequest represents location creation payload
@@ -19,7 +20,7 @@ type CreateLocationRequest struct {
 	City        string   `json:"city" validate:"required"`
 	Rating      *int     `json:"rating"`
 	PriceLevel  *int     `json:"price_level"`
-	Tags        []string `json:"tags"`
+	Tags        pq.StringArray `json:"tags"`
 	ImageURL    *string  `json:"image_url"`
 	WebsiteURL  *string  `json:"website_url"`
 }

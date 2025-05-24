@@ -22,7 +22,7 @@ func main() {
 	// Initialize database
 	database.Connect()
 	database.Migrate()
-	database.SeedBayAreaLocations()
+	//database.SeedBayAreaLocations()
 
 	// Initialize Fiber app
 	app := fiber.New(fiber.Config{
@@ -39,13 +39,13 @@ func main() {
 
 	// Middleware
 	app.Use(logger.New())
-	
+
 	// Get CORS origin from environment or default to localhost
 	corsOrigin := os.Getenv("CORS_ORIGIN")
 	if corsOrigin == "" {
 		corsOrigin = "http://localhost:3000"
 	}
-	
+
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: corsOrigin,
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
